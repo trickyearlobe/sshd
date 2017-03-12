@@ -21,7 +21,14 @@ if node['os'] == 'linux'
   default['sshd']['keys']['TCPKeepAlive'] = 'yes'
 
   # Allow SFTP
-  default['sshd']['keys']['Subsystem'] = 'sftp /usr/lib/openssh/sftp-server'
+  case node['platform_family']
+  when 'rhel'
+    default['sshd']['keys']['Subsystem'] = 'sftp /usr/libexec/openssh/sftp-server'
+  when 'debian'
+    default['sshd']['keys']['Subsystem'] = 'sftp /usr/lib/openssh/sftp-server'
+  else
+    raise "sshd: unsupported linux platform family #{node['platform']}"
+  end
 
   # Solaris calls this LookupClientHostnames
   # Prevent DNS lookups slowing down logon and killing the DNS
