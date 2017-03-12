@@ -1,0 +1,30 @@
+###########################################################################
+##  WARNING
+##  This file is managed by Chef
+##  Manual changes will be overwritten
+###########################################################################
+
+<%
+# Iterate through parameters stored in node['sshd'][*]
+node['sshd']['keys'].each do |sshParam,sshValue|
+
+  case sshValue.class.name
+    # If we have a simple string then just write it out
+    when "String"
+%>
+<%= "#{sshParam} #{sshValue}" %>
+<%
+    # If we have an array then write each element on a seperate line
+    when "Chef::Node::ImmutableArray"
+      sshValue.each do |sshArrayValue|
+%>
+<%= "#{sshParam} #{sshArrayValue}" %>
+<%
+      end
+
+    # Otherwise we have something we can't deal with so we need to blow up the chef run.
+    else
+      raise "sshd_config: Parameter #{sshParam} #{sshValue}. Cannot use parameters of type #{sshValue.class.name}"
+    end
+end
+%>
